@@ -6,6 +6,8 @@
 
 [Algorithms_MathModels](https://github.com/HuangCongQing/Algorithms_MathModels)
 
+Tsinghua CS DSA:[Video](https://www.xuetangx.com/course/THU08091000384/10322765) | [Website](https://dsa.cs.tsinghua.edu.cn/~deng/ds/index.htm)
+
 Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.com/video/BV1gZ4y1X71R)
 
 #### 2.Coding
@@ -22,9 +24,10 @@ Stanford CS230 Deep Learning: [Video 2018](https://www.bilibili.com/video/BV1p74
 
 Tensorflow: [Tensorflow Core](https://tensorflow.google.cn/tutorials?hl=zh_cn) | [Github](https://github.com/tensorflow/tensorflow)
 
-Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1](https://www.bilibili.com/video/BV1zE411T7nb) | [Part2](https://www.bilibili.com/video/BV1yE411g7NY/) | [Part3:NLP](https://www.bilibili.com/video/BV19E411g7d1) | [Part4:Sequence Models](https://www.bilibili.com/video/BV1qE411u7z4)
+Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1:Basics](https://www.bilibili.com/video/BV1zE411T7nb) | [Part2:CNN](https://www.bilibili.com/video/BV1yE411g7NY/) | [Part3:NLP](https://www.bilibili.com/video/BV19E411g7d1) | [Part4:Sequence Models](https://www.bilibili.com/video/BV1qE411u7z4)
 
 Pytorch: [Tutorials](https://pytorch.org/tutorials/) | [Video](https://www.bilibili.com/video/BV1Tb411Y7Mg)
+
 
 
 ### 信息检索
