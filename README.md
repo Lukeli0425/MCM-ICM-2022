@@ -1,22 +1,33 @@
-# MCM-ICM-2022
+## MCM-ICM-2022
 
-## Coding & Algorithms
+### Coding & Algorithms
+
+#### 1.Algorithms
 
 [Algorithms_MathModels](https://github.com/HuangCongQing/Algorithms_MathModels)
 
 Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.com/video/BV1gZ4y1X71R)
 
-Standford CS229 Machine Learning: [Video 2018](https://www.bilibili.com/video/BV1JE411w7Ub) | [Documents](https://github.com/maxim5/cs229-2018-autumn)
+#### 2.Coding
+
+Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784) ｜ [Websites](https://ehmatthes.github.io/pcc/)
+
+Online Latex Editing: [Tsinghua Overleaf](http://overleaf.tsinghua.edu.cn)
+
+#### 3.Machine Learning
+
+Standford CS229 Machine Learning: [Video 2018](https://www.bilibili.com/video/BV1JE411w7Ub) | [Materials](https://github.com/maxim5/cs229-2018-autumn)
 
 Standford CS230 Deep Learning: [Video 2018](https://www.bilibili.com/video/BV1p7411Y7M8)
 
 Tensorflow: [Tensorflow Core](https://tensorflow.google.cn/tutorials?hl=zh_cn) | [Github](https://github.com/tensorflow/tensorflow)
 
-Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1]() | [Part2]() | [Part3]() | [Part4]()
+Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1](https://www.bilibili.com/video/BV1zE411T7nb) | [Part2]() | [Part3]() | [Part4]()
 
-Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784)
+Pytorch: [Tutorials](https://pytorch.org/tutorials/) | [Video](https://www.bilibili.com/video/BV1Tb411Y7Mg)
 
-## 信息检索
+
+### 信息检索
 
 [图书馆的EBSCO平台](https://lib.tsinghua.edu.cn/info/1184/3739.htm)
 
