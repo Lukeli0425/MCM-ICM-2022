@@ -1,8 +1,20 @@
 # MCM-ICM-2022
 
-## 算法资料
+## Coding & Algorithms
 
 [Algorithms_MathModels](https://github.com/HuangCongQing/Algorithms_MathModels)
+
+Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.com/video/BV1gZ4y1X71R)
+
+Standford CS229 Machine Learning: [Video 2018](https://www.bilibili.com/video/BV1JE411w7Ub)|[Documents](https://github.com/maxim5/cs229-2018-autumn)
+
+Standford CS230 Deep Learning: [Video 2018](https://www.bilibili.com/video/BV1p7411Y7M8)
+
+Tensorflow: [Tensorflow Core](https://tensorflow.google.cn/tutorials?hl=zh_cn)|[Github](https://github.com/tensorflow/tensorflow)
+
+Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1]()|[Part2]()|[Part3]()|[Part4]()
+
+Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU)|[Book](https://www.ituring.com.cn/book/2784)
 
 ## 信息检索
 
