@@ -10,19 +10,19 @@ Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.c
 
 #### 2.Coding
 
-Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784) ｜ [Websites](https://ehmatthes.github.io/pcc/)
+Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784) ｜ [Website](https://ehmatthes.github.io/pcc/)
 
 Online Latex Editing: [Tsinghua Overleaf](http://overleaf.tsinghua.edu.cn)
 
 #### 3.Machine Learning
 
-Standford CS229 Machine Learning: [Video 2018](https://www.bilibili.com/video/BV1JE411w7Ub) | [Materials](https://github.com/maxim5/cs229-2018-autumn)
+Stanford CS229 Machine Learning: [Video 2018](https://www.bilibili.com/video/BV1JE411w7Ub) | [Materials](https://github.com/maxim5/cs229-2018-autumn)
 
-Standford CS230 Deep Learning: [Video 2018](https://www.bilibili.com/video/BV1p7411Y7M8)
+Stanford CS230 Deep Learning: [Video 2018](https://www.bilibili.com/video/BV1p7411Y7M8)
 
 Tensorflow: [Tensorflow Core](https://tensorflow.google.cn/tutorials?hl=zh_cn) | [Github](https://github.com/tensorflow/tensorflow)
 
-Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1](https://www.bilibili.com/video/BV1zE411T7nb) | [Part2]() | [Part3]() | [Part4]()
+Andrew Ng Tensorflow2.0 from Basics to Mastery: [Part1](https://www.bilibili.com/video/BV1zE411T7nb) | [Part2](https://www.bilibili.com/video/BV1yE411g7NY/) | [Part3:NLP](https://www.bilibili.com/video/BV19E411g7d1) | [Part4:Sequence Models](https://www.bilibili.com/video/BV1qE411u7z4)
 
 Pytorch: [Tutorials](https://pytorch.org/tutorials/) | [Video](https://www.bilibili.com/video/BV1Tb411Y7Mg)
 
