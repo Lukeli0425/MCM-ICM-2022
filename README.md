@@ -16,7 +16,7 @@ Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.c
 
 #### 2.Coding
 
-Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784) ｜ [Website](https://ehmatthes.github.io/pcc/)
+Python Crash Course: [Video](https://www.bilibili.com/video/BV19t411m7uU) | [Book](https://www.ituring.com.cn/book/2784) | [Website](https://ehmatthes.github.io/pcc/)
 
 Online Latex Editing: [Tsinghua Overleaf](http://overleaf.tsinghua.edu.cn)
 
