@@ -1,5 +1,9 @@
 ## MCM-ICM-2022
 
+### 论文
+
+[2004-2020 MCM-ICM Outstanding](https://github.com/dick20/MCM-ICM)
+
 ### Coding & Algorithms
 
 #### 1.Algorithms
