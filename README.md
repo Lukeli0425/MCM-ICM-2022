@@ -6,7 +6,7 @@
 
 [Algorithms_MathModels](https://github.com/HuangCongQing/Algorithms_MathModels)
 
-Tsinghua CS DSA:[Video](https://www.xuetangx.com/course/THU08091000384/10322765) | [Website](https://dsa.cs.tsinghua.edu.cn/~deng/ds/index.htm)
+Tsinghua CS DSA: [Video](https://www.xuetangx.com/course/THU08091000384/10322765) | [Website](https://dsa.cs.tsinghua.edu.cn/~deng/ds/index.htm)
 
 Mit 6.006 Introduction to Algorithms: [Video 2020 Spring](https://www.bilibili.com/video/BV1gZ4y1X71R)
 
