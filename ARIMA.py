@@ -45,7 +45,7 @@ class ARIMA:
             plt.show()
 
 
-    def predict(self,label = 'gold',train_start='2016-09-12',train_end='2021-09-09',test_end='2020-09-07'):
+    def predict(self,label = 'gold',train_start='2016-09-12',train_end='2020-09-07',test_end='2021-09-07'):
         """predicting prices using ARIMA"""
         # prepare data
         if label == 'gold':
@@ -60,7 +60,7 @@ class ARIMA:
         # Define the d and q parameters to take any value between 0 and 1
         q = d = range(0, 2)
         # Define the p parameters to take any value between 0 and 3
-        p = range(0, 4)
+        p = range(0, 4) # 4
         # Generate all different combinations of p, q and q triplets
         pdq = list(itertools.product(p, d, q))
         # Generate all different combinations of seasonal p, q and q triplets
@@ -90,19 +90,25 @@ class ARIMA:
                 except:
                     continue
         print('The smallest AIC is {} for model SARIMAX{}x{}'.format(min(AIC), SARIMAX_model[AIC.index(min(AIC))][0],SARIMAX_model[AIC.index(min(AIC))][1]))
+        mod = sm.tsa.statespace.SARIMAX(train_data,
+                                order=SARIMAX_model[AIC.index(min(AIC))][0],
+                                seasonal_order=SARIMAX_model[AIC.index(min(AIC))][1],
+                                enforce_stationarity=False,
+                                enforce_invertibility=False)
+        results = mod.fit()    
         print(results.summary())
         results.plot_diagnostics(figsize=(20, 14))
 
         # visualize predictions
-        # pred0 = results.get_prediction(start='1958-01-01', dynamic=False)
-        # pred0_ci = pred0.conf_int()
-        # pred1 = results.get_prediction(start='1958-01-01', dynamic=True)
-        # pred1_ci = pred1.conf_int()
+        pred0 = results.get_prediction(start='2020-09-08', dynamic=False)
+        pred0_ci = pred0.conf_int()
+        pred1 = results.get_prediction(start='2020-09-08', dynamic=True)
+        pred1_ci = pred1.conf_int()
         pred2 = results.get_forecast(test_end)
         pred2_ci = pred2.conf_int()
         ax = self.gold_data.plot(figsize=(20, 16))
-        # pred0.predicted_mean.plot(ax=ax, label='1-step-ahead Forecast (get_predictions, dynamic=False)')
-        # pred1.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_predictions, dynamic=True)')
+        pred0.predicted_mean.plot(ax=ax, label='1-step-ahead Forecast (get_predictions, dynamic=False)')
+        pred1.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_predictions, dynamic=True)')
         pred2.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_forecast)')
         ax.fill_between(pred2_ci.index, pred2_ci.iloc[:, 0], pred2_ci.iloc[:, 1], color='k', alpha=.1)
         plt.ylabel('Monthly airline passengers (x1000)')
