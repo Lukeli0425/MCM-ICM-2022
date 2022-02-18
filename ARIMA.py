@@ -19,12 +19,13 @@ class ARIMA:
         self.bitcoin_path = bitcoin_path
         self.gold_data = pd.read_csv(gold_path, engine='python', skipfooter=3)
         self.bitcoin_data = pd.read_csv(bitcoin_path, engine='python', skipfooter=3)
-        self.gold_data['Month']=pd.to_datetime(self.gold_data['Month'], format='%Y-%m-%d')
-        self.gold_data.set_index(['Month'], inplace=True)
-        self.bitcoin_data['Month']=pd.to_datetime(self.bitcoin_data['Month'], format='%Y-%m-%d')
-        self.bitcoin_data.set_index(['Month'], inplace=True)
+        # self.gold_data['Date']=pd.to_datetime(self.gold_data['Date'], format='%m/%d/%Y')
+        self.gold_data.set_index(['Date'], inplace=True)
+        # self.bitcoin_data['Date']=pd.to_datetime(self.bitcoin_data['Date'], format='%m/%d/%Y')
+        self.bitcoin_data.set_index(['Date'], inplace=True)
         print("\nLoad data success!\n")
-        
+        print(self.gold_data)
+
 
     def plot_data(self):
         """plot the data from csv files"""
@@ -41,13 +42,14 @@ class ARIMA:
         plt.show()
 
 
-    def predict(self,label = 'gold',train_start='2016-9-12',train_end='2018-9-12'):
+    def predict(self,label = 'gold',train_start='9/12/16',train_end='9/12/18'):# 9/12/16
         """predict preices using ARIMA"""
         # prepare data
         if label == 'gold':
+            # train_data = self.gold_data[train_start:train_end]
             train_data = self.gold_data[train_start:train_end]
         elif label == 'bitcoin':
-            train_data = self.bitcoin_data[train_start:train_end]
+            train_data = self.bitcoin_data['9/12/16':'9/12/18']
         else:
             print('\nWrong label!\n')
             return
@@ -98,4 +100,4 @@ if __name__ == "__main__":
     arima_model = ARIMA(gold_path="./2022_Problem_C_DATA/LBMA-GOLD.csv",
                         bitcoin_path="./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
     # arima_model.plot_data()
-    arima_model.predict(label='gold',train_start='2016-9-12',train_end='2018-9-12')
+    arima_model.predict(label='gold')
