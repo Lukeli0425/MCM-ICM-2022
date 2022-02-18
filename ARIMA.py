@@ -24,7 +24,7 @@ class ARIMA:
         self.bitcoin_data['Date'] = pd.to_datetime(self.bitcoin_data['Date'])
         self.bitcoin_data.set_index(['Date'], inplace=True)
         print("\nLoad data success!\n")
-        print(self.gold_data)
+        print(self.gold_data['2021-09-09 00:00:00'])
 
 
     def plot_data(self,plot_fig=False):
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     arima_model = ARIMA(gold_path="./2022_Problem_C_DATA/LBMA-GOLD.csv",
                         bitcoin_path="./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
     # arima_model.plot_data()
-    arima_model.predict(label='gold')
+    # arima_model.predict(label='gold')
     
