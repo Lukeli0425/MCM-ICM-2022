@@ -13,49 +13,47 @@ plt.rcParams.update({'font.size': 12})
 plt.style.use('ggplot')
 
 class ARIMA:
-    def __init__(self,gold_path,bitcoin_path):
+    def __init__(self,label='gold',datapath = "./2022_Problem_C_DATA/LBMA-GOLD.csv"):
         """initialization"""
-        self.gold_path = gold_path
-        self.bitcoin_path = bitcoin_path
-        self.gold_data = pd.read_csv(gold_path, engine='python', skipfooter=3)
-        self.bitcoin_data = pd.read_csv(bitcoin_path, engine='python', skipfooter=3)
-        self.gold_data['Date'] = pd.to_datetime(self.gold_data['Date'])
-        self.gold_data.set_index(['Date'], inplace=True)
-        self.bitcoin_data['Date'] = pd.to_datetime(self.bitcoin_data['Date'])
-        self.bitcoin_data.set_index(['Date'], inplace=True)
+        self.label = label
+        if label == 'gold':
+            self.datapath = "./2022_Problem_C_DATA/LBMA-GOLD.csv"
+        elif label == 'bitcoin':
+            self.datapath = "./2022_Problem_C_DATA/BCHAIN-MKPRU.csv"
+        else:
+            print('\nWrong label!\n')
+            return
+        self.data = pd.read_csv(self.datapath, engine='python', skipfooter=3)
+        self.data['Date'] = pd.to_datetime(self.data['Date'])
+        self.data.set_index(['Date'], inplace=True)
+        self.data_diff1 = self.data.diff(1)
+        self.data_diff2 = self.data_diff1.diff(1)
         print("\nLoad data success!\n")
-        print(self.gold_data['2021-09-09 00:00:00'])
+        print(self.data)
 
 
     def plot_data(self,plot_fig=False):
         """plot the data from csv files"""
         print("\nplotting data\n")
-        # plot gold data
-        self.gold_data.plot()
-        plt.ylabel('Gold daily prices')
-        plt.savefig('./results/Gold_daily_prices.png')
+        # plot data
+        self.data.plot()
+        plt.ylabel(self.label.title() + ' daily prices')
+        plt.savefig('./results/' + self.label.title() + '_daily_prices.png')
         plt.xlabel('Date')
 
-        # plot bit coin data
-        self.bitcoin_data.plot()
-        plt.ylabel('Bitcoin daily prices')
-        plt.xlabel('Date')
-        plt.savefig('./results/Bitcoin_daily_prices.png')
-        if plot_fig == True:
+        if plot_fig:
             plt.show()
 
 
-    def predict(self,label = 'gold',train_start='2016-09-12',train_end='2020-09-07',test_end='2021-09-07'):
+    def predict(self,train_start='2016-09-12',train_end='2020-09-07',test_end='2020-11-06',order=0,plot_fig=False):
         """predicting prices using ARIMA"""
         # prepare data
-        if label == 'gold':
-            # train_data = self.gold_data[train_start:train_end]
-            train_data = self.gold_data[train_start:train_end]
-        elif label == 'bitcoin':
-            train_data = self.bitcoin_data[train_start:train_end]
-        else:
-            print('\nWrong label!\n')
-            return
+        if order == 0:
+            train_data = self.data[train_start:train_end]
+        elif order == 1:
+            train_data = self.data_diff1[train_start:train_end]
+        elif order == 2:
+            train_data = self.data_diff2[train_start:train_end]
 
         # Define the d and q parameters to take any value between 0 and 1
         q = d = range(0, 2)
@@ -63,14 +61,16 @@ class ARIMA:
         p = range(0, 4) # 4
         # Generate all different combinations of p, q and q triplets
         pdq = list(itertools.product(p, d, q))
+        # pdq = pdq[0:1]
         # Generate all different combinations of seasonal p, q and q triplets
         seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
 
-        print('Examples of parameter combinations for Seasonal ARIMA...')
-        print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
-        print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
-        print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
-        print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
+        # print('Examples of parameter combinations for Seasonal ARIMA...')
+        # print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
+        # print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
+        # print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
+        # print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
+        # print("\n")
 
         warnings.filterwarnings("ignore") # specify to ignore warning messages
         AIC = []
@@ -83,7 +83,7 @@ class ARIMA:
                                                     seasonal_order=param_seasonal,
                                                     enforce_stationarity=False,
                                                     enforce_invertibility=False)
-                    results = mod.fit()
+                    results = mod.fit(disp=-1)
                     print('SARIMAX{}x{} - AIC:{}'.format(param, param_seasonal, results.aic), end='\r')
                     AIC.append(results.aic)
                     SARIMAX_model.append([param, param_seasonal])
@@ -95,18 +95,23 @@ class ARIMA:
                                 seasonal_order=SARIMAX_model[AIC.index(min(AIC))][1],
                                 enforce_stationarity=False,
                                 enforce_invertibility=False)
-        results = mod.fit()    
+        results = mod.fit(disp=-1)    
         print(results.summary())
         results.plot_diagnostics(figsize=(20, 14))
 
         # visualize predictions
-        pred0 = results.get_prediction(start='2020-09-08', dynamic=False)
+        pred0 = results.get_prediction(start='2019-09-08', dynamic=False)
         pred0_ci = pred0.conf_int()
-        pred1 = results.get_prediction(start='2020-09-08', dynamic=True)
+        pred1 = results.get_prediction(start='2019-09-08', dynamic=True)
         pred1_ci = pred1.conf_int()
         pred2 = results.get_forecast(test_end)
         pred2_ci = pred2.conf_int()
-        ax = self.gold_data.plot(figsize=(20, 16))
+        ax = self.data.plot(figsize=(20, 16))
+        # 恢复差分
+        if order == 1:
+
+        elif order == 2:
+
         pred0.predicted_mean.plot(ax=ax, label='1-step-ahead Forecast (get_predictions, dynamic=False)')
         pred1.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_predictions, dynamic=True)')
         pred2.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_forecast)')
@@ -114,16 +119,20 @@ class ARIMA:
         plt.ylabel('Monthly airline passengers (x1000)')
         plt.xlabel('Date')
         plt.legend()
-        plt.savefig('./results/prediction.png')
-        plt.show()
+        plt.savefig('./results/prediction_'+ self.label +'.png')
+        if plot_fig:
+            plt.show()
         return results
 
 
 
 
 if __name__ == "__main__":
-    arima_model = ARIMA(gold_path="./2022_Problem_C_DATA/LBMA-GOLD.csv",
-                        bitcoin_path="./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
-    # arima_model.plot_data()
-    # arima_model.predict(label='gold')
+    # gold_model = ARIMA(label='gold')
+    # gold_model.plot_data()
+    # gold_model.predict()
+
+    bitcoin_model = ARIMA(label='bitcoin')
+    bitcoin_model.plot_data()
+    bitcoin_model.predict()
     
