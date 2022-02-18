@@ -1,0 +1,20 @@
+{
+    ////// 调试Python代码（F5） //////
+    // Path to Python, you can use a custom version of Python 
+    // by modifying this setting to include the full path.
+    "python.pythonPath": "python3", // 直接用命令就好（因为zsh已经知道python3指的就是那个解释器）。你也可以更改为python3解释器的安装路径（但是我推荐你直接写python3）
+    ////// Code Runner执行Python代码（⌘R） //////
+    "code-runner.executorMap": {
+        "python": "python3",
+    },
+    // Whether to save the current file before running.
+    "code-runner.saveFileBeforeRun": true, // run code前保存
+    // Whether to save the current file before running.
+    "code-runner.runInTerminal": true, // 设置成false会在"OUTPUT"中只读输出，无法输入数据
+    // Whether to preserve focus on code editor after code run is triggered.
+    "code-runner.preserveFocus": false, // 若为false，run code后光标会聚焦到终端上。如果需要频繁输入数据可设为false
+    // Whether to clear previous output before each run.
+    "code-runner.clearPreviousOutput": true, // 每次run code前清空属于code runner的终端消息，默认false
+    // Whether to ignore selection to always run entire file.
+    "code-runner.ignoreSelection": false, // 只跑选中的n行代码
+}
