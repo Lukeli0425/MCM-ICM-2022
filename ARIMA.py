@@ -19,15 +19,15 @@ class ARIMA:
         self.bitcoin_path = bitcoin_path
         self.gold_data = pd.read_csv(gold_path, engine='python', skipfooter=3)
         self.bitcoin_data = pd.read_csv(bitcoin_path, engine='python', skipfooter=3)
-        # self.gold_data['Date']=pd.to_datetime(self.gold_data['Date'], format='%m/%d/%Y')
+        self.gold_data['Date'] = pd.to_datetime(self.gold_data['Date'])
         self.gold_data.set_index(['Date'], inplace=True)
-        # self.bitcoin_data['Date']=pd.to_datetime(self.bitcoin_data['Date'], format='%m/%d/%Y')
+        self.bitcoin_data['Date'] = pd.to_datetime(self.bitcoin_data['Date'])
         self.bitcoin_data.set_index(['Date'], inplace=True)
         print("\nLoad data success!\n")
         print(self.gold_data)
 
 
-    def plot_data(self):
+    def plot_data(self,plot_fig=False):
         """plot the data from csv files"""
         print("\nplotting data\n")
         # plot gold data
@@ -41,17 +41,18 @@ class ARIMA:
         plt.ylabel('Bitcoin daily prices')
         plt.xlabel('Date')
         plt.savefig('./results/Bitcoin_daily_prices.png')
-        plt.show()
+        if plot_fig == True:
+            plt.show()
 
 
-    def predict(self,label = 'gold',train_start='9/12/16',train_end='9/12/18'):# 9/12/16
-        """predict preices using ARIMA"""
+    def predict(self,label = 'gold',train_start='2016-09-12',train_end='2021-09-09',test_end='2020-09-07'):
+        """predicting prices using ARIMA"""
         # prepare data
         if label == 'gold':
             # train_data = self.gold_data[train_start:train_end]
             train_data = self.gold_data[train_start:train_end]
         elif label == 'bitcoin':
-            train_data = self.bitcoin_data['9/12/16':'9/12/18']
+            train_data = self.bitcoin_data[train_start:train_end]
         else:
             print('\nWrong label!\n')
             return
@@ -89,9 +90,25 @@ class ARIMA:
                 except:
                     continue
         print('The smallest AIC is {} for model SARIMAX{}x{}'.format(min(AIC), SARIMAX_model[AIC.index(min(AIC))][0],SARIMAX_model[AIC.index(min(AIC))][1]))
+        print(results.summary())
         results.plot_diagnostics(figsize=(20, 14))
-        # visualize results
-        
+
+        # visualize predictions
+        # pred0 = results.get_prediction(start='1958-01-01', dynamic=False)
+        # pred0_ci = pred0.conf_int()
+        # pred1 = results.get_prediction(start='1958-01-01', dynamic=True)
+        # pred1_ci = pred1.conf_int()
+        pred2 = results.get_forecast(test_end)
+        pred2_ci = pred2.conf_int()
+        ax = self.gold_data.plot(figsize=(20, 16))
+        # pred0.predicted_mean.plot(ax=ax, label='1-step-ahead Forecast (get_predictions, dynamic=False)')
+        # pred1.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_predictions, dynamic=True)')
+        pred2.predicted_mean.plot(ax=ax, label='Dynamic Forecast (get_forecast)')
+        ax.fill_between(pred2_ci.index, pred2_ci.iloc[:, 0], pred2_ci.iloc[:, 1], color='k', alpha=.1)
+        plt.ylabel('Monthly airline passengers (x1000)')
+        plt.xlabel('Date')
+        plt.legend()
+        plt.savefig('./results/prediction.png')
         plt.show()
         return results
 
@@ -101,5 +118,6 @@ class ARIMA:
 if __name__ == "__main__":
     arima_model = ARIMA(gold_path="./2022_Problem_C_DATA/LBMA-GOLD.csv",
                         bitcoin_path="./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
-    arima_model.plot_data()
-    # arima_model.predict(label='gold')
+    # arima_model.plot_data()
+    arima_model.predict(label='gold')
+    
