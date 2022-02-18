@@ -33,12 +33,14 @@ class ARIMA:
         # plot gold data
         self.gold_data.plot()
         plt.ylabel('Gold daily prices')
+        plt.savefig('./results/Gold_daily_prices.png')
         plt.xlabel('Date')
 
         # plot bit coin data
         self.bitcoin_data.plot()
         plt.ylabel('Bitcoin daily prices')
         plt.xlabel('Date')
+        plt.savefig('./results/Bitcoin_daily_prices.png')
         plt.show()
 
 
@@ -80,9 +82,7 @@ class ARIMA:
                                                     seasonal_order=param_seasonal,
                                                     enforce_stationarity=False,
                                                     enforce_invertibility=False)
-
                     results = mod.fit()
-
                     print('SARIMAX{}x{} - AIC:{}'.format(param, param_seasonal, results.aic), end='\r')
                     AIC.append(results.aic)
                     SARIMAX_model.append([param, param_seasonal])
@@ -90,8 +90,10 @@ class ARIMA:
                     continue
         print('The smallest AIC is {} for model SARIMAX{}x{}'.format(min(AIC), SARIMAX_model[AIC.index(min(AIC))][0],SARIMAX_model[AIC.index(min(AIC))][1]))
         results.plot_diagnostics(figsize=(20, 14))
+        # visualize results
+        
         plt.show()
-        return result
+        return results
 
 
 
@@ -99,5 +101,5 @@ class ARIMA:
 if __name__ == "__main__":
     arima_model = ARIMA(gold_path="./2022_Problem_C_DATA/LBMA-GOLD.csv",
                         bitcoin_path="./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
-    # arima_model.plot_data()
-    arima_model.predict(label='gold')
+    arima_model.plot_data()
+    # arima_model.predict(label='gold')
