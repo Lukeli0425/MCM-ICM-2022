@@ -1,5 +1,7 @@
+## 2022-2-19 luke
+## Wrapper class for LSTM+CNN predictor
+
 from logging import raiseExceptions
-from pickle import FALSE
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -12,9 +14,9 @@ import os
 
 class LSTM_Predictor():
     """LSTM + CNN model wrapper for gold or bitcoin price forecast"""
-    def __init__(self,label='gold',alpha=7,beta=2,gamma=64):
+    def __init__(self,label='gold',alpha=7,beta=1,gamma=64):
         """Initialization"""
-        print("\nInitializing LSTM predictor for \n" + label.title() + ".")
+        print("\nInitializing LSTM predictor for " + label.title() + ".")
         self.label = label
         self.path = './results/' + label + '/'
         if not os.path.exists('./results/'):
@@ -26,7 +28,7 @@ class LSTM_Predictor():
         self.alpha = alpha   # window length
         self.beta = beta   # the number of LSTM layers
         self.gamma = gamma  # the number of filters in convolutional layer
-        self.diff = True
+        self.loss = 1
 
         ## Load data
         if label == 'gold':
@@ -42,12 +44,9 @@ class LSTM_Predictor():
         self.prices = []
         self.date = []
         for i in range(0,len(prices)):
-            if str(prices[i]) != 'nan': # delete nan
+            if not str(prices[i]) == 'nan': # delete nan
                 self.prices.append(prices[i])
                 self.date.append(date[i])
-        # self.prices_diff = [self.prices[0]] # diff price
-        # for i in range(1,len(self.prices)):
-        #     self.prices_diff.append(self.prices[i]-self.prices[i-1])
 
         # plot data
         self.df.plot()
@@ -55,11 +54,9 @@ class LSTM_Predictor():
         plt.ylabel(label.title() + ' Daily Price')
         plt.savefig(self.path + label.title() + '_Daily_Price.png')
         plt.close()
-
         print("\nLoad data success!\n")
 
         self.scaler = sklearn.preprocessing.StandardScaler()
-
         self.start_date = datetime.strptime('01-11-2017','%m-%d-%Y')
         self.present_date = datetime.strptime('01-11-2019','%m-%d-%Y')
         self.end_date = datetime.strptime('01-11-2019','%m-%d-%Y')
@@ -67,6 +64,14 @@ class LSTM_Predictor():
         self.build_model(alpha=7,beta=1,gamma=64)
 
         return
+
+    def get_date(self):
+        """Get self.date"""
+        return self.date
+
+    def get_loss(self):
+        """Return previous train loss."""
+        return np.array(self.loss, dtype='float32')
 
     def build_model(self,alpha=7,beta=1,gamma=64):
         ## Build model
@@ -100,17 +105,15 @@ class LSTM_Predictor():
             raiseExceptions('Invalid Date!')
         self.train_end_date = train_end_date
         self.test_end_date = test_end_date
-        train_prices = np.array(self.prices[:self.n_train]).reshape((-1, 1))
-        test_prices = np.array(self.prices[self.n_train:self.n_test]).reshape((-1, 1))
+        train_prices = np.array(self.prices[:self.n_train+1]).reshape((-1, 1))
+        test_prices = np.array(self.prices[self.n_train+1:self.n_test]).reshape((-1, 1))
 
         # Standardize data
         self.scaler.fit(train_prices)
         train_prices = self.scaler.transform(train_prices).reshape(-1)
-        print("train_prices.shape:", train_prices.shape)
         test_prices = self.scaler.transform(test_prices).reshape(-1)
-        print("test_prices.shape:", test_prices.shape)
-
-        self.train_prices = train_prices
+        # print("train_prices.shape:", train_prices.shape)
+        # print("test_prices.shape:", test_prices.shape)
 
         # Create train dataset
         self.x_train = []
@@ -120,8 +123,8 @@ class LSTM_Predictor():
             self.y_train.append(train_prices[i+self.alpha].reshape((1, -1)))  # next day's price
         self.x_train = np.array(self.x_train, dtype='float32')
         self.y_train = np.array(self.y_train, dtype='float32')
-        print("self.x_train.shape:", self.x_train.shape)
-        print("self.y_train.shape:", self.y_train.shape)
+        # print("self.x_train.shape:", self.x_train.shape)
+        # print("self.y_train.shape:", self.y_train.shape)
 
         # Create test dataset
         self.x_test = []
@@ -131,16 +134,14 @@ class LSTM_Predictor():
             self.y_test.append(test_prices[i+self.alpha].reshape((1, -1))) 
         self.x_test = np.array(self.x_test, dtype='float32')
         self.y_test = np.array(self.y_test, dtype='float32')
-        print("self.x_test.shape:", self.x_test.shape)
-        print("self.y_test.shape:", self.y_test.shape)
+        # print("self.x_test.shape:", self.x_test.shape)
+        # print("self.y_test.shape:", self.y_test.shape)
 
         return self.x_train,self.y_train,self.x_test,self.y_test
 
-
-    def train_model(self,epochs=80,batch_size=64):
+    def train_model(self,epochs=60,batch_size=64):
         """train LSTM model"""
-        
-        # Plot train date
+        # Plot train data
         # plt.figure(figsize=(16, 4))
         # plt.subplot(121)
         # plt.title("self.x_train[:, 0, 0] (%d ~ %d)" % (0, len(self.x_train)-1))
@@ -149,10 +150,10 @@ class LSTM_Predictor():
         # plt.title("X_test[:, 0, 0] (%d ~ %d)" % (len(self.x_train), len(self.x_train)+len(self.x_test)-1))
         # sns.lineplot(x=np.arange(len(self.x_train), len(self.x_train)+len(self.x_test)), y=self.x_test[:, 0, 0])
         
-
         ## train model
         self.model.compile(optimizer='adam', loss='mse')
         self.history = self.model.fit(self.x_train, self.y_train, batch_size=batch_size, epochs=epochs)
+        self.loss = self.history.history['loss'][-1]
         plt.figure(figsize=(16, 8))
         sns.lineplot(data=self.history.history)
         plt.xlabel("Epochs")
@@ -165,7 +166,6 @@ class LSTM_Predictor():
     def predict(self):
         """Test the model with predictions"""     
         self.preds = self.model.predict(self.x_test)
-
         ## plot prediction
         plt.figure(figsize=(16, 8))
         sns.lineplot(data={
@@ -179,7 +179,7 @@ class LSTM_Predictor():
         plt.close()
         return self.preds
 
-    def get_data(self,start_date,present_date,end_date,train=True):
+    def get_data(self,start_date,present_date,end_date,train=True,epochs=60):
         """Get data for trading stradegy"""
         self.start_date = start_date
         self.present_date = present_date
@@ -190,17 +190,15 @@ class LSTM_Predictor():
             raiseExceptions('Invalid Date!')
 
         # self.build_model(alpha=7,beta=1,gamma=64)
-        self.create_dataset(train_end_date = present_date+timedelta(days=1), test_end_date=end_date)
+        self.create_dataset(train_end_date = present_date, test_end_date=end_date)
         if train:
-            self.train_model() # today's price is known
+            self.train_model(epochs=epochs) # today's price is known
         self.predict()
 
-        self.observation = self.prices[self.n_start:self.n_train]
-        self.prediction = self.prices[self.n_start:self.n_train]
+        self.observation = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
+        self.prediction = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
 
         return self.observation, self.prediction, self.prices[self.n_train - 1]
-
-        
 
 
 if __name__ == "__main__":
@@ -219,3 +217,4 @@ if __name__ == "__main__":
     Bitcoin_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
     Bitcoin_predictor.train_model()
     Bitcoin_predictor.predict()
+    print(Bitcoin_predictor.get_loss())
