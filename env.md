@@ -8,6 +8,6 @@ conda activate mcm
 
 Download packages:
 ```zsh
-conda install pandas matplotlib statsmodels
+conda install pandas matplotlib statsmodels scikit-learn 
 pip install backtrader jqdatasdk
 ```
