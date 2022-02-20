@@ -54,7 +54,7 @@ class LSTM_Predictor():
         plt.xlabel('Date')
         plt.ylabel(label.title() + ' Daily Price')
         plt.savefig(self.path + label.title() + '_Daily_Price.png')
-        # plt.show()
+        plt.close()
 
         print("\nLoad data success!\n")
 
@@ -63,6 +63,8 @@ class LSTM_Predictor():
         self.start_date = datetime.strptime('01-11-2017','%m-%d-%Y')
         self.present_date = datetime.strptime('01-11-2019','%m-%d-%Y')
         self.end_date = datetime.strptime('01-11-2019','%m-%d-%Y')
+
+        self.build_model(alpha=7,beta=1,gamma=64)
 
         return
 
@@ -146,7 +148,7 @@ class LSTM_Predictor():
         # plt.subplot(122)
         # plt.title("X_test[:, 0, 0] (%d ~ %d)" % (len(self.x_train), len(self.x_train)+len(self.x_test)-1))
         # sns.lineplot(x=np.arange(len(self.x_train), len(self.x_train)+len(self.x_test)), y=self.x_test[:, 0, 0])
-        # plt.show()
+        
 
         ## train model
         self.model.compile(optimizer='adam', loss='mse')
@@ -157,7 +159,7 @@ class LSTM_Predictor():
         plt.ylabel("Loss")
         plt.title(self.train_end_date.strftime("%m-%d-%Y") + '_' + self.label.title() + '_train_history')
         plt.savefig(self.path + self.train_end_date.strftime("%m-%d-%Y") + '_' + '_train_history.png')
-        # plt.show()
+        plt.close()
         return self.history
 
     def predict(self):
@@ -174,7 +176,7 @@ class LSTM_Predictor():
         plt.ylabel(self.label.title() + " Daily Price")
         plt.title(self.train_end_date.strftime("%m-%d-%Y") + '_' +  self.test_end_date.strftime("%m-%d-%Y") + '_' + self.label.title() + '_Predictions')
         plt.savefig(self.path + self.train_end_date.strftime("%m-%d-%Y") + '_' +  self.test_end_date.strftime("%m-%d-%Y") + '_' + '_Predictions.png')
-        # plt.show()
+        plt.close()
         return self.preds
 
     def get_data(self,start_date,present_date,end_date,train=True):
@@ -187,7 +189,7 @@ class LSTM_Predictor():
         except:
             raiseExceptions('Invalid Date!')
 
-        self.build_model(alpha=7,beta=1,gamma=64)
+        # self.build_model(alpha=7,beta=1,gamma=64)
         self.create_dataset(train_end_date = present_date+timedelta(days=1), test_end_date=end_date)
         if train:
             self.train_model() # today's price is known

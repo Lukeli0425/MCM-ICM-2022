@@ -6,13 +6,13 @@ from LSTM_Predictor import LSTM_Predictor
 
 class Crossover_runner():
     """Realization of double avergae line stradegy"""
-    def __init__(self,obs_length=30,pred_length=30,initial_wait=90,win_short=3,win_long=20):
+    def __init__(self,obs_length=30,pred_length=30,initial_wait=90,train_interval=15,win_short=3,win_long=20):
         """Initialization"""
         self.present_date = datetime.strptime('09-11-2016','%m-%d-%Y')
         self.trade = False
-
+        self.last_train_date = datetime.strptime('09-11-2016','%m-%d-%Y')
         # Assets
-        self.dollar = 1000.0
+        self.cash = 1000.0
         self.gold = 0.0 # in troy ounce
         self.bitcoin = 0.0 # in bitcoin
         self.total_asset = 1000.0 # in dollar
@@ -25,6 +25,7 @@ class Crossover_runner():
         self.trade_cooldown = 10
         self.common_cooldown  = 10
         self.wait_time = 10
+        self.train_interval = train_interval
         self.win_short = win_short 
         self.win_long = win_long 
 
@@ -33,11 +34,18 @@ class Crossover_runner():
         self.Bitcoin_predictor = LSTM_Predictor(label='bitcoin')
         return
 
-    def total_assets(self):
-        self.total_assets = self.dollar
-        self.total_assets += self.gold * self.gold_price
-        self.total_assets += self.bitcoin * self.bitcoin_price
-        return self.total_assets
+    def total_assets(self,print_info=False):
+        self.total_asset = self.cash
+        self.total_asset += self.gold * self.gold_price
+        self.total_asset += self.bitcoin * self.bitcoin_price
+        if print_info:
+            print(self.present_date)
+            print(f"\nTotal assets: ${self.total_asset}")
+            print(f"Cash: ${self.cash}")
+            print(f"Gold: ${self.gold * self.gold_price}")
+            print(f"Bitcoin: ${self.bitcoin * self.bitcoin_price}\n")
+
+        return self.total_asset
 
     def run(self):
         """Run stradegy"""
@@ -45,15 +53,21 @@ class Crossover_runner():
         self.present_date += timedelta(days=self.initial_wait)
         while self.present_date < datetime.strptime('09-10-2021','%m-%d-%Y'):
             self.trade = False
-            # self.gold_obs,self.gold_pred = self.Gold_predictor.get_data(self.present_date - timedelta(days=self.obs_length),
+            # train = self.last_train_date + timedelta(days=self.train_interval) >=  self.present_date # whether to update model
+            train = False
+            # self.gold_obs,self.gold_pred,self.gold_price = self.Gold_predictor.get_data(self.present_date - timedelta(days=self.obs_length),
             #                                                             self.present_date,
-            #                                                             self.present_date + timedelta(days=self.pred_length)
+            #                                                             self.present_date + timedelta(days=self.pred_length),
+            #                                                             train=train
             #                                                             )
             self.bitcoin_obs,self.bitcoin_pred,self.bitcoin_price = self.Bitcoin_predictor.get_data(self.present_date - timedelta(days=self.obs_length),
                                                                                 self.present_date,
-                                                                                self.present_date + timedelta(days=self.pred_length)
+                                                                                self.present_date + timedelta(days=self.pred_length),
+                                                                                train=train
                                                                                 )
-            print(self.present_date)
+
+            self.total_assets(print_info=True)
+
             if self.trade:
                 self.wait_time = self.trade_cooldown
             else:
