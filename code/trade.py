@@ -49,10 +49,10 @@ class Crossover_runner():
             #                                                             self.present_date,
             #                                                             self.present_date + timedelta(days=self.pred_length)
             #                                                             )
-            # self.bitcoin_obs,self.bitcoin_pred,self.bitcoin_price = self.Bitcoin_predictor.get_data(self.present_date - timedelta(days=self.obs_length),
-            #                                                                     self.present_date,
-            #                                                                     self.present_date + timedelta(days=self.pred_length)
-            #                                                                     )
+            self.bitcoin_obs,self.bitcoin_pred,self.bitcoin_price = self.Bitcoin_predictor.get_data(self.present_date - timedelta(days=self.obs_length),
+                                                                                self.present_date,
+                                                                                self.present_date + timedelta(days=self.pred_length)
+                                                                                )
             print(self.present_date)
             if self.trade:
                 self.wait_time = self.trade_cooldown
