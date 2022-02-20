@@ -10,7 +10,7 @@ import os
 
 class Crossover_Runner():
     """Realization of double avergae line stradegy"""
-    def __init__(self,obs_length=60,pred_length=60,initial_wait=120,trade_cooldown=25,common_cooldown=15,train_interval=20,win_short=3,win_long=20):
+    def __init__(self,obs_length=60,pred_length=60,initial_wait=120,trade_cooldown=100,common_cooldown=80,train_interval=20,win_short=3,win_long=20):
         """Initialization"""
         self.trade = False
         self.present_date = datetime.strptime('09-11-2016','%m-%d-%Y')
@@ -28,7 +28,7 @@ class Crossover_Runner():
         self.bitcoin_price = 0
         self.gold_trade = 0
         self.bitcoin_trade = 0
-        self.gold_commission = 0.10
+        self.gold_commission = 0.01
         self.bitcoin_commission = 0.02
 
         ## Parameters
@@ -67,8 +67,8 @@ class Crossover_Runner():
             print(self.present_date)
             print(f"Total assets: ${self.total_asset}")
             print(f"Cash: ${self.cash}")
-            print(f"Gold: ${self.gold * self.gold_price}")
-            print(f"Bitcoin: ${self.bitcoin * self.bitcoin_price}\n")
+            print(f"Gold: {self.gold}  ${self.gold * self.gold_price}")
+            print(f"Bitcoin: {self.bitcoin}  ${self.bitcoin * self.bitcoin_price}\n")
 
         return self.total_asset
 
@@ -100,7 +100,6 @@ class Crossover_Runner():
             self.bitcoin += self.bitcoin_trade
             self.cash -= self.gold_trade * self.gold_price
             self.cash -= self.bitcoin_trade * self.bitcoin_price
-
             ## Pay commission
             self.cash -= abs(self.gold_trade) * self.gold_price * self.gold_commission
             self.cash -= abs(self.bitcoin_trade) * self.bitcoin_price * self.bitcoin_commission
@@ -133,12 +132,11 @@ class Crossover_Runner():
         self.trade = False
         self.gold_trade = 0.0
         self.bitcoin_trade = 0.0
-
         ## Gold Trade
-        if self.gold_pred.mean() >= self.gold_price * 1.05:
+        if self.gold_pred.mean() >= self.gold_price * 1.03:
             self.gold_trade = self.cash * 0.1 / self.gold_price
             self.trade = True
-        elif self.gold_pred.mean() <= self.gold_price * 0.95:
+        elif self.gold_pred.mean() <= self.gold_price * 0.97:
             self.gold_trade = - self.gold * 0.3
             self.trade = True
         ## Bitcoin Trade
@@ -192,11 +190,11 @@ class Crossover_Runner():
 
         ## Trade everything on last day
         self.present_date = self.end_date
-        self.gold_tarde = - self.gold
-        self.bitoin_tarde = - self.bitcoin
-        self.Trade()
+        # self.trade = True
+        # self.gold_tarde = - self.gold
+        # self.bitoin_tarde = - self.bitcoin
+        # self.Trade()
         self.total_assets(print_info=True)
-
         
         ## Print trade info
 

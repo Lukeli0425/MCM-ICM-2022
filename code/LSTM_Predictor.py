@@ -9,7 +9,7 @@ import seaborn as sns
 import sklearn.preprocessing
 import sklearn.model_selection
 import tensorflow as tf
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import os
 
 class LSTM_Predictor():
@@ -151,7 +151,7 @@ class LSTM_Predictor():
         # sns.lineplot(x=np.arange(len(self.x_train), len(self.x_train)+len(self.x_test)), y=self.x_test[:, 0, 0])
         
         ## train model
-        self.model.compile(optimizer='adam', loss='mse')
+        self.model.compile(optimizer='adam', loss='mse',run_eagerly=True)
         self.history = self.model.fit(self.x_train, self.y_train, batch_size=batch_size, epochs=epochs)
         self.loss = self.history.history['loss'][-1]
         plt.figure(figsize=(16, 8))
