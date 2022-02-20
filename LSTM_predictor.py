@@ -7,7 +7,7 @@ import seaborn as sns
 import sklearn.preprocessing
 import sklearn.model_selection
 import tensorflow as tf
-from datetime import datetime
+from datetime import datetime,timedelta
 import os
 
 class LSTM_Predictor():
@@ -59,6 +59,10 @@ class LSTM_Predictor():
         print("\nLoad data success!\n")
 
         self.scaler = sklearn.preprocessing.StandardScaler()
+
+        self.start_date = datetime.strptime('01-11-2017','%m-%d-%Y')
+        self.present_date = datetime.strptime('01-11-2019','%m-%d-%Y')
+        self.end_date = datetime.strptime('01-11-2019','%m-%d-%Y')
 
         return
 
@@ -191,7 +195,24 @@ class LSTM_Predictor():
 
     def get_data(self,start_date,present_date,end_date):
         """Get data for trading stradegy"""
+        self.start_date = start_date
+        self.present_date = present_date
+        self.end_date = end_date
+        try:
+            self.n_start = self.date.index(start_date)
+        except:
+            raiseExceptions('Invalid Date!')
 
+        self.build_model(alpha=7,beta=1,gamma=64)
+        self.train_model(train_end_date = present_date + timedelta(days=1)) # today's price is known
+        self.predict(test_end_date=end_date)
+
+        self.observation = self.prices[self.n_start:self.n_train]
+        self.prediction = self.prices[self.n_start:self.n_train]
+
+        return self.observation, self.prediction, self.prices[self.n_train - 1]
+
+        
 
 
 if __name__ == "__main__":
