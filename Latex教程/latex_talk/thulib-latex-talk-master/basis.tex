@@ -1,0 +1,602 @@
+% !TeX encoding = UTF-8
+% !TeX program = latexmk
+% !TeX root = latex-talk.tex
+
+\section{学术论文排版}
+\subsection{\LaTeX{} 排版入门}
+
+\begin{frame}[fragile]
+  \frametitle{引擎与格式}
+  \begin{itemize}
+    \item \textbf{引擎}：\TeX{} 的实现
+
+      \begin{itemize}
+        \item \pdfTeX{}：直接生成 PDF，支持 micro-typography
+        \item \XeTeX{}：支持 Unicode、OpenType 与复杂文字编排（CTL）
+        \item \LuaTeX{}：支持 Unicode，内联 Lua，支持 OpenType
+        \item (u)p\TeX{}：日本方面推动，生成 |.dvi|，（支持 Unicode）
+        \item Ap\TeX{}：底层 CJK 支持，内联 Ruby，Color Emoji
+      \end{itemize}
+
+    \item \textbf{格式}：\TeX{} 的语言扩展（命令封装）
+
+      \begin{itemize}
+        \item plain \TeX{}：Knuth 同志专用
+        \item \LaTeX{}：排版科技类文章的事实标准
+        \item Con\TeX t：基于 \LuaTeX{} 实现，优雅、易用（吗？）
+      \end{itemize}
+
+    \item \textbf{程序}：引擎 + dump 后的格式代码
+
+      \begin{itemize}
+        \item \alert{英文文章：\pdfLaTeX{}、\XeLaTeX{} 或 \LuaLaTeX{}}
+        \item \alert{中文文章：\XeLaTeX{} 或 \LuaLaTeX{}}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{编译}
+  \begin{itemize}
+    \item 现代 \TeX{} 引擎均可直接生成 PDF
+    \item 命令行
+
+      \begin{itemize}
+        \item |pdflatex|/|xelatex|/|lualatex| + |<文件名>[.tex]|
+        \item 多次编译：每次均需要读取并处理中间文件
+        \item 推荐 \pkg{latexmk}：运行 |latexmk [<选项>] <文件名>| 即可自动完成所有工作
+      \end{itemize}
+
+    \item 编辑器
+
+      \begin{itemize}
+        \item 按钮的背后仍然是命令
+        \item |PATH| 环境变量：确定可执行文件的位置
+        \item VS Code + \LaTeX{} Workshop：配置 |tools| 和 |recipes|
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{文件结构}
+  \lstset{language=[LaTeX]TeX}
+  \begin{lstlisting}[basicstyle=\ttfamily]
+\documentclass[a4paper]{ctexart}
+% 文档类型，如 ctexart，[]内是选项，如 a4paper
+% 这里开始是导言区
+\usepackage{graphicx} % 引用宏包
+\graphicspath{{fig/}} % 设置图片目录
+% 导言区到此为止
+\begin{document}
+这里开始是正文
+\end{document}
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{\LaTeX{}“命令”}
+  \framesubtitle{\emph{宏} (Macro)、或者\emph{控制序列} (control sequence)}
+\begin{itemize}
+\item 简单命令
+  \begin{itemize}
+    \item \verb|\命令|\hspace{2em}
+    \verb|{\songti 中国人民解放军}| ~$\Rightarrow$ {\songti 中国人民解放军}
+  \item \verb|\命令[可选参数]{必选参数}|\\
+\verb|\section[精简标题]{这个题目实在太长了放到目录里面不太好看}|\\
+$\Rightarrow$ {\heiti 1.1 \hspace{1em} \songti 这个题目实在太长了放到目录里面不太好看}
+  \end{itemize}
+\item 环境
+  \begin{columns}[c]
+  \begin{column}{0.45\textwidth}
+    \begin{lstlisting}[basicstyle=\ttfamily]
+\begin{equation*}
+  a^2-b^2=(a+b)(a-b)
+\end{equation*}
+\end{lstlisting}
+\end{column}\hspace{1em}
+  \begin{column}{0.45\textwidth}
+$ a^2-b^2=(a+b)(a-b)$
+\end{column}
+  \end{columns}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\LaTeX{} 常用命令}
+  \begin{exampleblock}{简单命令}
+\centering
+\footnotesize
+  \begin{tabular}{llll}
+    \cmd{chapter} & \cmd{section} & \cmd{subsection} & \cmd{paragraph} \\
+    章 & 节 & 小节 & 带题头段落 \\\hline
+    \cmd{centering} & \cmd{emph} & \cmd{verb} & \cmd{url} \\
+   居中对齐         &  强调      & 原样输出   & 超链接 \\\hline
+  \cmd{footnote} & \cmd{item} & \cmd{caption} & \cmd{includegraphics} \\
+   脚注 & 列表条目 & 标题 & 插入图片 \\\hline
+  \cmd{label} & \cmd{cite} & \cmd{ref} \\
+  标号 & 引用参考文献 & 引用图表公式等\\\hline
+  \end{tabular}
+\end{exampleblock}
+\end{frame}
+\begin{frame}[fragile]{\LaTeX{} 常用命令}
+\begin{exampleblock}{环境}
+\centering
+\footnotesize
+\begin{tabular}{lll}
+  \env{table} & \env{figure} & \env{equation}\\
+  表格 & 图片 & 公式 \\\hline
+  \env{itemize} & \env{enumerate} & \env{description}\\
+  无编号列表 & 编号列表 & 描述 \\\hline
+\end{tabular}
+\end{exampleblock}
+\end{frame}
+%
+\begin{frame}{\LaTeX{}命令举例}
+\cmdxmp{chapter}{前言}{\heiti 第 1 章\hspace{1em} 前言}
+\cmdxmp{section[精简标题]}{这个题目实在太长了放到目录里面不太好看}{\heiti 1.1
+  \hspace{1em} 这个题目实在太长了放到目录里面不太好看}
+\cmdxmp{footnote}{我是可爱的脚注}{前方高能\footnote{我是可爱的脚注}}
+\end{frame}
+
+\begin{frame}[fragile]{\LaTeX{} 环境举例}
+  \begin{minipage}{0.4\linewidth}
+    \begin{lstlisting}[basicstyle=\ttfamily\small]
+\begin{itemize}
+  \item 一条
+  \item 次条
+  \item 这一条可以分为 ...
+    \begin{itemize}
+      \item 子一条
+    \end{itemize}
+\end{itemize}
+\end{lstlisting}
+  \end{minipage}\hspace{1.5cm}
+  \begin{minipage}{0.4\linewidth}
+\begin{itemize}
+  \item 一条
+  \item 次条
+  \item 这一条可以分为 ...
+    \begin{itemize}
+      \item 子一条
+    \end{itemize}
+\end{itemize}
+  \end{minipage}
+\medskip
+
+  \begin{minipage}{0.4\linewidth}
+\begin{lstlisting}
+\begin{enumerate}
+  \item 一条
+  \item 次条
+  \item 再条
+\end{enumerate}
+\end{lstlisting}
+  \end{minipage}\hspace{1.5cm}
+  \begin{minipage}{0.4\linewidth}
+\begin{enumerate}
+  \item 一条
+  \item 次条
+  \item 再条
+\end{enumerate}
+  \end{minipage}
+\end{frame}
+%
+
+\begin{frame}[fragile]{\LaTeX{} 数学公式}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+$V = \frac{4}{3}\pi r^3$
+
+\[
+  V = \frac{4}{3}\pi r^3
+\]
+
+\begin{equation}
+\label{eq:vsphere}
+V = \frac{4}{3}\pi r^3
+\end{equation}
+\end{lstlisting}
+\end{column}
+
+\begin{column}{.5\textwidth}
+$V = \frac{4}{3}\pi r^3$
+
+\[
+  V = \frac{4}{3}\pi r^3
+\]
+
+\begin{equation}
+\label{eq:vsphere}
+V = \frac{4}{3}\pi r^3
+\end{equation}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{\LaTeX{} 数学公式}
+\begin{itemize}
+\item 数学公式排版是 \LaTeX{} 的绝对强项
+\item 数学排版需要进入数学模式，引用 \texttt{amsmath} 宏包
+	\begin{itemize}
+	\item 用单个美元符号(\verb|$|) 包围起来的内容是 {\bf 行内公式}
+  \item 用两个美元符号(\verb|$$|) （不推荐）或 \verb|\[ \]| 包围起来的是 {\bf 单行公式} 或 {\bf 行间公式}
+	\item 使用数学环境，例如 \texttt{equation} 环境内的公式会自动加上编号，
+		\texttt{align} 环境用于多行公式（例如方程组、多个并列条件等）
+  \end{itemize}
+\item 寻找符号
+    \begin{itemize}
+      \item 运行 \texttt{texdoc symbols} 查看符号表
+      \item S. Pakin. \emph{The Comprehensive \LaTeX{} Symbol List}
+            \link{https://ctan.org/pkg/comprehensive}
+      \item 手写识别（有趣但不全）：Detexify \link{http://detexify.kirelabs.org}
+    \end{itemize}
+\item MathType 也可以使用和导出 \LaTeX{} 公式（不推荐）
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,label={frame:unicode-math}]{unicode-math：现代的数学输入方式}
+\LaTeX{} 的公式确实很强大，但是……符号有点难记？
+
+\pkg{unicode-math} 宏包提供了几乎所见即所得的公式输入(\ThuThesis 默认使用）：
+
+\begin{itemize}
+  \item 可直接输入各类符号对应的 Unicode 字符（需要使用 UTF-8 编码）：
+  \begin{align*}
+    𝐹(𝑠) &= ℒ\{𝑓(𝑡)\} = ∫_0^∞ e^{−𝑠𝑡} 𝑓(𝑡) d𝑡 \\
+    𝐁 &= 𝜇_0(𝐌 + 𝐇)
+  \end{align*}
+  \item 使用 |symbf| 等命令自动处理字母的粗体、斜体等变体，不必引入额外宏包。
+\end{itemize}
+
+\begin{columns}[c]
+  \begin{column}{0.45\textwidth}
+    \begin{lstlisting}[basicstyle=\ttfamily]
+\begin{align*}
+\symbf{\beta} &= \beta \symbf{I} \\
+\symbf{a} &= a \symbf{I}
+\end{align*}
+\end{lstlisting}
+\end{column}\hspace{1em}
+  \begin{column}{0.45\textwidth}
+  \begin{align*}
+      \symbf{\beta} &= \beta \symbf{I} \\
+      \symbf{a} &= a \symbf{I}
+  \end{align*}
+  \end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]{层次与目录生成}
+\begin{columns}
+\begin{column}{.6\textwidth}
+
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+\tableofcontents % 这里是目录
+\part{有监督学习}
+\chapter{支持向量机}
+\section{支持向量机简介}
+\subsection{支持向量机的历史}
+\subsubsection{支持向量机的诞生}
+\paragraph{一些趣闻}
+\subparagraph{第一个趣闻}
+\end{lstlisting}
+\end{column}
+\begin{column}{.4\textwidth}
+第一部分\quad 有监督学习\\
+第一章\quad 支持向量机 \\
+1. 支持向量机简介 \\
+1.1 支持向量机的历史 \\
+1.1.1 支持向量机的诞生 \\
+一些趣闻  \\
+第一个趣闻
+\end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{列表与枚举}
+\begin{columns}
+\begin{column}{.6\textwidth}
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+\begin{enumerate}
+\item \LaTeX{} 好处都有啥
+  \begin{description}
+    \item[好用] 体验好才是真的好
+    \item[好看] 强迫症的福音
+    \item[开源] 众人拾柴火焰高
+  \end{description}
+\item 还有呢?
+  \begin{itemize}
+    \item 好处 1
+    \item 好处 2
+  \end{itemize}
+\end{enumerate}
+\end{lstlisting}
+\end{column}
+\begin{column}{.4\textwidth}
+{\small
+\begin{enumerate}
+\item \LaTeX{} 好处都有啥
+  \begin{description}
+    \item[好用] 体验好才是真的好
+    \item[好看] 治疗强迫症
+    \item[开源] 众人拾柴火焰高
+  \end{description}
+\item 还有呢?
+  \begin{itemize}
+    \item 好处 1
+    \item 好处 2
+  \end{itemize}
+\end{enumerate}
+}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{交叉引用与插入插图}
+  \begin{itemize}
+  \item 给对象命名：图片、表格、公式等\\
+  |\label{name}|
+\item 引用对象\\
+  |\ref{name}|
+  \end{itemize}
+\bigskip
+
+  \begin{minipage}{0.7\linewidth}
+    \begin{lstlisting}
+图书馆馆徽请参见图~\ref{fig:lib}。
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[height=.2\textheight]%
+  {libicon.pdf}
+  \caption{图书馆馆徽。}
+  \label{fig:lib}
+\end{figure}
+\end{lstlisting}
+  \end{minipage}\hfill
+  \begin{minipage}{0.3\linewidth}\centering
+    {\songti 图书馆馆徽请参见图~1。}\\[1em]
+ \includegraphics[height=0.2\textheight]{libicon.pdf}\\
+ {\footnotesize\heiti 图~1. 图书馆馆徽。}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]{交叉引用与插入表格}
+  \begin{columns}
+  \column{.6\textwidth}
+  \begin{lstlisting}
+\begin{table}[htbp]
+   \caption{编号与含义}
+   \label{tab:number}
+   \centering
+   \begin{tabular}{cl}
+     \toprule
+     编号 & 含义 \\
+     \midrule
+     1    & 第一 \\
+     2    & 第二 \\
+     \bottomrule
+   \end{tabular}
+\end{table}
+公式~(\ref{eq:vsphere}) 中编号与含义
+请参见表~\ref{tab:number}。
+\end{lstlisting}
+\column{.4\textwidth}
+\centering
+{\small 表~1. 编号与含义}\\[2pt]
+\begin{tabular}{cl}\toprule
+编号 & 含义 \\\midrule
+1 & 第一\\
+2  & 第二\\\bottomrule
+\end{tabular}\\[5pt]
+
+\normalsize 公式~(\ref{eq:vsphere})编号与含义请参见表~1。
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{浮动体}
+\begin{itemize}
+\item 初学者最“捉摸不透”的特性之一 \link{https://liam.page/2017/03/11/floats-in-LaTeX-basic}
+\item 图片和表格有时会很大，在插入的位置不一定放得下，因此需要浮动调整
+\item 避免在文中使用「下图」「上图」的说法，而是使用图表的编号，例如 |图~\ref{fig:fig1}| 。
+\item |\begin{figure}[<位置>] 图片 \end{figure}|
+  \begin{itemize}
+  \item 位置参数指定浮动体摆放的偏好
+  \item |h| 当前位置(here), |t| 顶部(top), |b| 底部(bottom), |p| 单独成页(p)
+  \item |!h| 表示忽略一些限制，|H| 表示强制\alert{（强烈不建议，除非你知道自己在做什么）}
+  \end{itemize}
+\item 温馨提示：图标题一般在下方，表标题一般在上方
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{作图与插图}
+  \begin{itemize}
+    \item 外部插入
+
+      \begin{itemize}
+        \item Mathematica、MATLAB
+        \item PowerPoint、Visio、Adobe Illustrator、Inkscape
+        \item Python \pkg{Matplotlib} 库、\texttt{Plots.jl}、R、Plotly 等
+        \item draw.io \link{https://draw.io/}、ProcessOn \link{https://www.processon.com/} 等在线绘图网站
+      \end{itemize}
+
+    \item \TeX{} 内联
+
+      \begin{itemize}
+        \item Asymptote
+        \item \alert{\pkg{pgf}/\pkg{TikZ}、\pkg{pgfplots}}
+      \end{itemize}
+
+    \item 插图格式
+
+      \begin{itemize}
+        \item 矢量图：|.pdf|
+        \item 位图：|.jpg| 或 |.png|
+        \item \alert{不再推荐 \texttt{.eps}}
+        \item 不（完全）支持 |.svg|、|.bmp|
+      \end{itemize}
+
+    \item 一些参考：\link{https://www.zhihu.com/question/21664179}
+                    \link{https://tex.stackexchange.com/q/158668}
+                    \link{https://tex.stackexchange.com/q/72930}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{表格绘制}
+  \begin{itemize}
+    \item 使用 \pkg{booktabs}、\pkg{longtables}、\pkg{multirow} 等宏包
+    \item 手动绘制表格确实比较令人头疼，且较难维护
+    \item 推荐使用在线工具绘制后导出代码：\LaTeX{} Table Generator \link{https://www.tablesgenerator.com/latex_tables}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{宏包推荐（\textbf{先读文档}后使用）}
+  \setlength{\leftmarginii}{1.5em}
+  \vspace{-1.5em}
+  \begin{multicols}{3}
+    \begin{itemize}
+      \item 必备
+
+        \begin{itemize}
+          \item \pkg{amsmath}
+          \item \pkg{graphicx}
+          \item \pkg{hyperref}
+        \end{itemize}
+
+      \item 样式
+
+        \begin{itemize}
+          \item \pkg{caption}
+          \item \pkg{enumitem}
+          \item \pkg{fancyhdr}
+          \item \pkg{footmisc}
+          \item \pkg{geometry}
+          \item \pkg{titlesec}
+        \end{itemize}
+
+      \item 数学
+
+        \begin{itemize}
+          \item \pkg{bm}
+          \item \pkg{mathtools}
+          \item \pkg{physics}
+          \item \pkg{unicode-math}
+        \end{itemize}
+
+      \item 表格
+
+        \begin{itemize}
+          \item \pkg{array}
+          \item \pkg{booktabs}
+          \item \pkg{longtable}
+          \item \pkg{tabularx}
+        \end{itemize}
+
+      \item 插图、绘图
+
+        \begin{itemize}
+          \item \pkg{float}
+          \item \pkg{pdfpages}
+          \item \pkg{standalone}
+          \item \pkg{subfig}
+          \item \pkg{pgf}/\pkg{tikz}
+          \item \pkg{pgfplots}
+        \end{itemize}
+
+      \item 字体
+
+        \begin{itemize}
+          \item \pkg{newpx}
+          \item \pkg{pifont}
+          \item \pkg{fontspec}
+        \end{itemize}
+
+      \item 各种功能
+
+        \begin{itemize}
+          \item \pkg{algorithm2e}
+          \item \pkg{beamer}
+          \item \pkg{biblatex}
+          \item \pkg{listings}
+          \item \pkg{mhchem}
+          \item \pkg{microtype}
+          \item \pkg{minted}
+          \item \pkg{natbib}
+          \item \pkg{siunitx}
+          \item \pkg{xcolor}
+        \end{itemize}
+
+      \item 多语言
+
+        \begin{itemize}
+          \item \pkg{babel}
+          \item \pkg{polyglossia}
+          \item \pkg{ctex}
+          \item \pkg{xeCJK}
+        \end{itemize}
+    \end{itemize}
+  \end{multicols}
+  \vspace*{-0.5cm}
+\end{frame}
+
+\subsection{论文模板使用}
+
+\begin{frame}{模板是什么？}
+  \begin{itemize}
+    \item 模板
+      \begin{itemize}
+        \item 已经设计好的格式框架
+        \item 好的模板：使用户专注于内容
+        \item 不应将时间花费在调整框架上
+      \end{itemize}
+    \item 再提 Office 和 Word
+      \begin{itemize}
+        \item 很少有人会有意识地在 Word 中使用模板
+        \item 定义自己的标题？定义自己的列表？定义自己的段落样式？
+        \item 自动化，还是手工调？
+        \item 经常被折腾的精疲力竭
+        \item 学习 \LaTeX{} 能帮助自己更好科学地使用 Word
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{论文排版}
+  \begin{itemize}
+    \item 获取模板
+      \begin{itemize}
+        \item 随发行版自带、手动网络下载
+        \item 模板文档类 \texttt{.cls} 文件
+        \item 示例 \texttt{.tex} 文件
+      \end{itemize}
+    \item 编辑 \texttt{.tex} 文件：添加用户内容
+    \item 编译：生成 PDF 文档
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{论文排版举例}
+  \begin{exampleblock}{IEEE 期刊论文}
+    \begin{itemize}
+      \item 获取模板：已随发行版自带
+        \begin{itemize}
+          \item 在安装目录 |<prefix>\texlive\2021\texmf-dist\doc\latex\IEEEtran|
+            下找到 |bare_jrnl.tex|
+          \item 复制到某个文件夹(比如个人存论文的目录)
+        \end{itemize}
+      \item 编辑 |bare_jrnl.tex| 文件 (英文模板：不支持中文)
+      \item 编译
+        \begin{itemize}
+          \item 英文文献：\XeLaTeX{}、\pdfLaTeX{} 编译均可
+        \end{itemize}
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+
+
+%%% vim: set ts=2 sts=2 sw=2 isk+=\: et tw=80 cc=+1 formatoptions+=mM:
