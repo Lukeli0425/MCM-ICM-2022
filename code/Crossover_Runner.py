@@ -10,7 +10,7 @@ import os
 
 class Crossover_Runner():
     """Realization of double avergae line stradegy"""
-    def __init__(self,obs_length=60,pred_length=60,initial_wait=120,trade_cooldown=100,common_cooldown=80,train_interval=20,win_short=3,win_long=20):
+    def __init__(self,obs_length=60,pred_length=60,initial_wait=120,trade_cooldown=30,common_cooldown=15,train_interval=20,win_short=5,win_long=15):
         """Initialization"""
         self.trade = False
         self.present_date = datetime.strptime('09-11-2016','%m-%d-%Y')
@@ -53,9 +53,10 @@ class Crossover_Runner():
         ## LSTM predictor
         self.Gold_predictor = LSTM_Predictor(label='gold')
         self.Bitcoin_predictor = LSTM_Predictor(label='bitcoin')
-        self.gold_date =  self.Gold_predictor.get_date()
-        self.bitcoin_date =  self.Bitcoin_predictor.get_date()
+        self.gold_df, self.gold_date, self.gold_price = self.Gold_predictor.get_date_price()
+        self.bitcoin_df, self.bitcoin_date, self.bitcoin_price = self.Bitcoin_predictor.get_date_price()
 
+        print(self.gold_df.USD[datetime.strptime('09-12-2016','%m-%d-%Y')])
         return
 
     def total_assets(self,print_info=False):
@@ -81,11 +82,11 @@ class Crossover_Runner():
         while not ((self.present_date in self.gold_date) and (self.present_date in self.bitcoin_date)):
             self.present_date += timedelta(days=1)
         ## cross_start_date
-        self.cross_start_date = self.present_date - timedelta(days=self.obs_length)
+        self.cross_start_date = self.present_date - timedelta(days=self.obs_length) # - int(self.win_long/2)
         while not ((self.cross_start_date in self.gold_date) and (self.present_date in self.bitcoin_date)):
             self.cross_start_date -= timedelta(days=1)
         ## cross_end_date
-        self.cross_end_date = self.present_date + timedelta(days=self.pred_length)
+        self.cross_end_date = self.present_date + timedelta(days=self.pred_length) # + int(self.win_long/2)
         if self.cross_end_date >= self.end_date:
             self.cross_end_date = self.end_date
             return
@@ -128,26 +129,54 @@ class Crossover_Runner():
 
         return self.gold_epochs, self.bitcoin_epochs
 
-    def crossover(self):
+    def average_judge(self):
+        """Trading stradegy of measuring average predicted price"""
         self.trade = False
         self.gold_trade = 0.0
         self.bitcoin_trade = 0.0
         ## Gold Trade
         if self.gold_pred.mean() >= self.gold_price * 1.03:
-            self.gold_trade = self.cash * 0.1 / self.gold_price
+            self.gold_trade = self.cash * 0.15 / self.gold_price
             self.trade = True
         elif self.gold_pred.mean() <= self.gold_price * 0.97:
             self.gold_trade = - self.gold * 0.3
             self.trade = True
         ## Bitcoin Trade
         if self.bitcoin_pred.mean() >= self.bitcoin_price * 1.05:
-            self.bitcoin_trade = self.cash * 0.1 / self.bitcoin_price
+            self.bitcoin_trade = self.cash * 0.15 / self.bitcoin_price
             self.trade = True
         elif self.bitcoin_pred.mean() <= self.bitcoin_price * 0.95:
             self.bitcoin_trade = - self.bitcoin * 0.3
             self.trade = True
 
         return self.trade
+
+    def peak_trough(self):
+        """Stradegy of finding by locating price local peaks and troughs"""
+        self.trade = False
+        self.gold_trade = 0.0
+        self.bitcoin_trade = 0.0
+
+        
+        
+        ## Gold
+        self.gold_present_index = len(self.gold_obs) - 1
+        self.gold_combined = np.hstack(self.gold_obs,self.gold_pred)
+        
+
+
+        return
+
+    # def crossover(self):
+    #     """Trading stradegy of double average line crossover"""
+    #     self.trade = False
+    #     self.gold_trade = 0.0
+    #     self.bitcoin_trade = 0.0
+    #     self.present_index = len(self.obs) - 1 - int(self.win_long/2)
+    #     ## Gold
+    #     self.gold_short_average = np.zeros_like()
+    #     self.gold_long_average = np.zeros_like()
+    #     self.gold_combined = np.hstack(self.gold_obs,self.gold_pred)
 
     def run(self):
         """Run stradegy"""
@@ -156,17 +185,19 @@ class Crossover_Runner():
         self.update_date()
 
         while self.present_date < self.end_date:
-            
+            ## Update price
+            self.gold_price = self.gold_df.USD[self.present_date]
+            self.bitcoin_price = self.bitcoin_df.Value[self.present_date]
             train = self.last_train_date + timedelta(days=self.train_interval) <=  self.present_date # whether to update model
             # train = False
             self.update_epochs()
-            self.gold_obs,self.gold_pred,self.gold_price = self.Gold_predictor.get_data(self.cross_start_date,
+            self.gold_obs,self.gold_pred = self.Gold_predictor.get_data(self.cross_start_date,
                                                                                         self.present_date,
                                                                                         self.cross_end_date,
                                                                                         train=train,
                                                                                         epochs=self.gold_epochs
                                                                                         )
-            self.bitcoin_obs,self.bitcoin_pred,self.bitcoin_price = self.Bitcoin_predictor.get_data(self.cross_start_date,
+            self.bitcoin_obs,self.bitcoin_pred = self.Bitcoin_predictor.get_data(self.cross_start_date,
                                                                                 self.present_date,
                                                                                 self.cross_end_date,
                                                                                 train=train,
@@ -174,26 +205,19 @@ class Crossover_Runner():
                                                                                 )
             if train:
                 self.last_train_date = self.present_date
-
             ## Trade decision
-            self.trade = self.crossover()
+            self.trade = self.average_judge()
             self.Trade()
             self.total_assets(print_info=True)
-
+            ## Update date
             if self.trade:
                 self.wait_time = self.trade_cooldown
             else:
                 self.wait_time = self.common_cooldown
-
-            ## Update date
             self.update_date()
 
-        ## Trade everything on last day
+        ## Last day
         self.present_date = self.end_date
-        # self.trade = True
-        # self.gold_tarde = - self.gold
-        # self.bitoin_tarde = - self.bitcoin
-        # self.Trade()
         self.total_assets(print_info=True)
         
         ## Print trade info

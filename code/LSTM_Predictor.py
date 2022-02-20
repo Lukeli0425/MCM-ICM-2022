@@ -33,14 +33,17 @@ class LSTM_Predictor():
         ## Load data
         if label == 'gold':
             self.df = pd.read_csv("./2022_Problem_C_DATA/LBMA-GOLD.csv")
-            prices = self.df['USD (PM)'].tolist()
+            prices = self.df['USD'].tolist()
         elif label == 'bitcoin':
             self.df = pd.read_csv("./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
             prices = self.df['Value'].tolist()
         else:
             raiseExceptions("Wrong label!")
-        date = pd.to_datetime(self.df['Date']).tolist()
-
+        self.df['Date'] = pd.to_datetime(self.df['Date'])
+        date = self.df['Date'].tolist()
+        self.df.set_index("Date", inplace=True)
+        
+        
         self.prices = []
         self.date = []
         for i in range(0,len(prices)):
@@ -65,9 +68,9 @@ class LSTM_Predictor():
 
         return
 
-    def get_date(self):
+    def get_date_price(self):
         """Get self.date"""
-        return self.date
+        return self.df, self.date, self.prices
 
     def get_loss(self):
         """Return previous train loss."""
@@ -198,7 +201,7 @@ class LSTM_Predictor():
         self.observation = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
         self.prediction = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
 
-        return self.observation, self.prediction, self.prices[self.n_train - 1]
+        return self.observation, self.prediction
 
 
 if __name__ == "__main__":
