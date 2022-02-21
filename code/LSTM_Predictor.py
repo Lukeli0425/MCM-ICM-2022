@@ -33,12 +33,11 @@ class LSTM_Predictor():
         ## Load data
         if label == 'gold':
             self.df = pd.read_csv("./2022_Problem_C_DATA/LBMA-GOLD.csv")
-            prices = self.df['USD'].tolist()
         elif label == 'bitcoin':
             self.df = pd.read_csv("./2022_Problem_C_DATA/BCHAIN-MKPRU.csv")
-            prices = self.df['Value'].tolist()
         else:
             raiseExceptions("Wrong label!")
+        prices = self.df['Value'].tolist()
         self.df['Date'] = pd.to_datetime(self.df['Date'])
         date = self.df['Date'].tolist()
         self.df.set_index("Date", inplace=True)
@@ -50,6 +49,13 @@ class LSTM_Predictor():
             if not str(prices[i]) == 'nan': # delete nan
                 self.prices.append(prices[i])
                 self.date.append(date[i])
+
+        ## Preprocessing data: Convolve to smooth
+        self.window_len = 7
+        self.prices = np.array(self.prices)
+        # self.prices_cov = np.convolve(self.prices,np.ones(self.window_len),mode='same')
+        self.prices_cov = np.convolve(self.prices,np.kaiser(self.window_len,1),mode='same')
+
 
         # plot data
         self.df.plot()
@@ -108,7 +114,10 @@ class LSTM_Predictor():
             raiseExceptions('Invalid Date!')
         self.train_end_date = train_end_date
         self.test_end_date = test_end_date
-        train_prices = np.array(self.prices[:self.n_train+1]).reshape((-1, 1))
+        if self.label == 'bitcoin':
+            train_prices = np.array(self.prices_cov[:self.n_train+1]).reshape((-1, 1))
+        else:
+            train_prices = np.array(self.prices[:self.n_train+1]).reshape((-1, 1))
         test_prices = np.array(self.prices[self.n_train+1:self.n_test]).reshape((-1, 1))
 
         # Standardize data
@@ -205,19 +214,19 @@ class LSTM_Predictor():
 
 
 if __name__ == "__main__":
-    train_end_date = datetime.strptime('01-11-2019','%m-%d-%Y')
-    test_end_date = datetime.strptime('02-22-2019','%m-%d-%Y')
+    train_end_date = datetime.strptime('01-13-2020','%m-%d-%Y')
+    test_end_date = datetime.strptime('02-24-2020','%m-%d-%Y')
     ## gold
-    # Gold_predictor = LSTM_Predictor(label='gold')
-    # Gold_predictor.build_model(alpha=7,beta=1,gamma=64)
-    # Gold_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
-    # Gold_predictor.train_model()
-    # Gold_predictor.predict()
+    Gold_predictor = LSTM_Predictor(label='gold')
+    Gold_predictor.build_model(alpha=7,beta=1,gamma=64)
+    Gold_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
+    Gold_predictor.train_model(epochs=40)
+    Gold_predictor.predict()
 
     ## bitcoin
-    Bitcoin_predictor = LSTM_Predictor(label='bitcoin')
-    Bitcoin_predictor.build_model(alpha=7,beta=1,gamma=64)
-    Bitcoin_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
-    Bitcoin_predictor.train_model()
-    Bitcoin_predictor.predict()
-    print(Bitcoin_predictor.get_loss())
+    # Bitcoin_predictor = LSTM_Predictor(label='bitcoin')
+    # Bitcoin_predictor.build_model(alpha=7,beta=1,gamma=64)
+    # Bitcoin_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
+    # Bitcoin_predictor.train_model(epochs=40)
+    # Bitcoin_predictor.predict()
+    # print(Bitcoin_predictor.get_loss())

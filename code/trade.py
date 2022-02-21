@@ -3,8 +3,8 @@
 
 from datetime import datetime, timedelta
 from LSTM_Predictor import LSTM_Predictor
-from Crossover_Runner import Crossover_Runner
+from Stradegy_Runner import Stradegy_Runner
 
 if __name__ == "__main__":
-    my_runner = Crossover_Runner()
-    # my_runner.run()
+    my_runner = Stradegy_Runner()
+    my_runner.run()
