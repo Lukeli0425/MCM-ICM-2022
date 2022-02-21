@@ -51,7 +51,7 @@ class LSTM_Predictor():
                 self.date.append(date[i])
 
         ## Preprocessing data: Convolve to smooth
-        self.window_len = 7
+        self.window_len = 5
         self.prices = np.array(self.prices)
         # self.prices_cov = np.convolve(self.prices,np.ones(self.window_len),mode='same')
         self.prices_cov = np.convolve(self.prices,np.kaiser(self.window_len,1),mode='same')
@@ -91,7 +91,6 @@ class LSTM_Predictor():
         self.model = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(self.alpha, input_shape=(1, self.alpha), return_sequences=True) for _ in range(self.beta)
         ] + [
-            # attention.Attention(),
             tf.keras.layers.Dense(self.alpha, activation='linear'),
             tf.keras.layers.Reshape((1, self.alpha)),
             tf.keras.layers.Conv1D(filters=self.gamma, kernel_size=1, strides=1),
@@ -99,7 +98,8 @@ class LSTM_Predictor():
             tf.keras.layers.Dense(self.alpha, activation='relu'),
             tf.keras.layers.Dense(1, activation='linear'),
         ])
-        self.model.summary()
+        # self.model.summary()
+        tf.keras.utils.plot_model(self.model, to_file='./model.png', show_shapes=True)
         return self.model
 
     def create_dataset(self,train_end_date,test_end_date):
@@ -118,7 +118,7 @@ class LSTM_Predictor():
             train_prices = np.array(self.prices_cov[:self.n_train+1]).reshape((-1, 1))
         else:
             train_prices = np.array(self.prices[:self.n_train+1]).reshape((-1, 1))
-        test_prices = np.array(self.prices[self.n_train+1:self.n_test]).reshape((-1, 1))
+        test_prices = np.array(self.prices[self.n_train-self.alpha:self.n_test]).reshape((-1, 1))
 
         # Standardize data
         self.scaler.fit(train_prices)
@@ -198,6 +198,7 @@ class LSTM_Predictor():
         self.end_date = end_date
         try:
             self.n_start = self.date.index(start_date)
+            self.n_end = self.date.index(end_date)
         except:
             raiseExceptions('Invalid Date!')
 
@@ -207,8 +208,8 @@ class LSTM_Predictor():
             self.train_model(epochs=epochs) # today's price is known
         self.predict()
 
-        self.observation = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
-        self.prediction = np.array(self.prices[self.n_start:self.n_train],dtype='float32')
+        self.observation = self.prices[self.n_start:self.n_train+1].tolist()#,dtype='float32')
+        self.prediction = self.prices[self.n_train+1:self.n_end].tolist()#,dtype='float32')
 
         return self.observation, self.prediction
 
@@ -219,9 +220,9 @@ if __name__ == "__main__":
     ## gold
     Gold_predictor = LSTM_Predictor(label='gold')
     Gold_predictor.build_model(alpha=7,beta=1,gamma=64)
-    Gold_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
-    Gold_predictor.train_model(epochs=40)
-    Gold_predictor.predict()
+    # Gold_predictor.create_dataset(train_end_date=train_end_date,test_end_date=test_end_date)
+    # Gold_predictor.train_model(epochs=40)
+    # Gold_predictor.predict()
 
     ## bitcoin
     # Bitcoin_predictor = LSTM_Predictor(label='bitcoin')
