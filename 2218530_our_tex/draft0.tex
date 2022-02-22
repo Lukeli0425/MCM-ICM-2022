@@ -1,0 +1,94 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MCM/ICM LaTeX Template %%
+%% 2022 MCM/ICM           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{left=1in,right=0.75in,top=1in,bottom=1in}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 感觉这里在定义宏变量Problem和Team
+\newcommand{\Problem}{C}
+\newcommand{\Team}{2218530}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{newtxtext}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{newtxmath} % must come after amsXXX
+\usepackage[pdftex]{graphicx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\lhead{Team \Team}
+\rhead{}
+\cfoot{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % 开始paper
+\begin{document}   
+
+% 设置文章头
+\graphicspath{{.}}  % 图片文件夹路径名
+\DeclareGraphicsExtensions{.pdf, .jpg, .tif, .png}  % 图片文件的后缀
+\thispagestyle{empty}   % 这一页的页面格式，empty表示没有页眉页脚
+\vspace*{-16ex}
+% 设置表格，加中间线并写队名啥的……
+\centerline{\begin{tabular}{*3{c}}
+	\parbox[t]{0.3\linewidth}{\begin{center}\textbf{Problem Chosen}\\ \Large \textcolor{red}{\Problem}\end{center}}
+	& \parbox[t]{0.3\linewidth}{\begin{center}\textbf{2022\\ MCM/ICM\\ Summary Sheet}\end{center}}
+	& \parbox[t]{0.3\linewidth}{\begin{center}\textbf{Team Control Number}\\ \Large \textcolor{red}{\Team}\end{center}}	\\
+	\hline
+\end{tabular}}
+
+%%%%%%%%%%% Begin Summary %%%%%%%%%%%
+\begin{center}
+Use this template to begin typing the first page (summary page) of your electronic report. This \newline
+template uses a 12-point Times New Roman font. Submit your paper as an Adobe PDF \newline
+electronic file (e.g. 1111111.pdf), typed in English, with a readable font of at least 12-point type.	\\[2ex]
+Do not include the name of your school, advisor, or team members on this or any page.	\\[2ex]
+Papers must be within the 25 page limit.	\\[2ex]
+Be sure to change the control number and problem choice above.	\\
+You may delete these instructions as you begin to type your report here. 	\\[2ex]
+Follow us @COMAPMath on Twitter or COMAPCHINAOFFICIAL on Weibo for the \newline
+most up to date contest information.
+
+\end{center}
+%%%%%%%%%%% End Summary %%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage  % 新的一页
+\setcounter{page}{1}    % 设置这一页是第1页
+\pagestyle{fancy}%fancyhdr宏包新增的页面风格
+% 设置目录
+\tableofcontents
+\rhead{Page \thepage\ of \pageref{LastPage}}    %当前页 of 总页数
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 开始正文
+%\part{Introduction}
+%\chapter{Background}
+\section{Introduction}
+\subsection{Background}
+% 背景
+
+\subsection{Statment of the problem}
+% 问题重述
+
+
+\rhead{Page \thepage\ of \pageref{LastPage}}
+
+\end{document}
+
+\end
+
+
+
+
