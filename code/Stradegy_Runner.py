@@ -5,13 +5,13 @@ import numpy as np
 import pandas as pd
 from scipy import optimize
 import matplotlib.pyplot as plt
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from LSTM_Predictor import LSTM_Predictor
 import os
 
 class Stradegy_Runner():
     """Realization of double avergae line stradegy"""
-    def __init__(self,obs_length=20,pred_length=50,initial_wait=120,train_interval=20):
+    def __init__(self,obs_length=20,pred_length=60,initial_wait=30,train_interval=20):
         """Initialization"""
         self.trade = False
         self.present_date = datetime.strptime('09-11-2016','%m-%d-%Y')
@@ -26,12 +26,12 @@ class Stradegy_Runner():
         self.gold = 0.0 # in troy ounce
         self.bitcoin = 0.0 # in bitcoin
         self.total_asset = 1000.0 # in dollar
-        self.gold_price = 0
-        self.bitcoin_price = 0
-        self.gold_trade = 0
-        self.bitcoin_trade = 0
-        self.gold_commission = 0.01
-        self.bitcoin_commission = 0.02
+        self.gold_price = 0.0
+        self.bitcoin_price = 0.0
+        self.gold_trade = 0.0
+        self.bitcoin_trade = 0.0
+        self.gold_commission = 0.08
+        self.bitcoin_commission = 0.16
 
         ## Parameters
         self.obs_length = obs_length
@@ -86,13 +86,13 @@ class Stradegy_Runner():
     def Trade(self):
         """Trade with current assets."""
         self.trade = False
-        if self.gold_trade >= 10e-7:
+        if self.gold_trade >= 1e-19:
             self.gold += self.gold_trade
             self.cash -= self.gold_trade * self.gold_price
             self.cash -= abs(self.gold_trade) * self.gold_price * self.gold_commission
             self.last_trade_date = self.present_date
             self.trade = True
-        if self.bitcoin_trade >= 10e-7:
+        if self.bitcoin_trade >= 1e-19:
             self.bitcoin += self.bitcoin_trade
             self.cash -= self.bitcoin_trade * self.bitcoin_price
             self.cash -= abs(self.bitcoin_trade) * self.bitcoin_price * self.bitcoin_commission
@@ -140,31 +140,12 @@ class Stradegy_Runner():
 
         return self.gold_epochs, self.bitcoin_epochs
 
-    def average_judge(self):
-        """Trading stradegy of measuring average predicted price"""
-        self.trade = False
-        self.gold_trade = 0.0
-        self.bitcoin_trade = 0.0
-        ## Gold Trade
-        if self.gold_pred.mean() >= self.gold_price * 1.03:
-            self.gold_trade = self.cash * 0.15 / self.gold_price
-            self.trade = True
-        elif self.gold_pred.mean() <= self.gold_price * 0.97:
-            self.gold_trade = - self.gold * 0.3
-            self.trade = True
-        ## Bitcoin Trade
-        if self.bitcoin_pred.mean() >= self.bitcoin_price * 1.05:
-            self.bitcoin_trade = self.cash * 0.15 / self.bitcoin_price
-            self.trade = True
-        elif self.bitcoin_pred.mean() <= self.bitcoin_price * 0.95:
-            self.bitcoin_trade = - self.bitcoin * 0.3
-            self.trade = True
-
-        return self.trade
 
     def find_next_date(self):
         """Stradegy of finding next trade date."""
         # print("\n####\n")
+        self.gold_price = self.gold_df.Value[self.present_date]
+        self.bitcoin_price = self.bitcoin_df.Value[self.present_date]
         ## Gold Prediction
         self.gold_found = False
         # for i in range(self.range, len(self.gold_pred)-self.range):
@@ -216,22 +197,24 @@ class Stradegy_Runner():
         b_i_s = self.bitcoin_date.index(self.present_date) + 1 - len(self.bitcoin_obs)
         b_i_e = self.bitcoin_date.index(self.present_date) + 1 + len(self.bitcoin_pred)
         plt.figure(num=f"{self.present_date} Predictions",figsize=(12,9))
-        fig, ax_g = plt.subplots()
+        #  = plt.subplots()
         plt.title(f"{self.present_date} Predictions")
-        
+        ax_g = plt.gca()
         ax_g.set_ylabel('Gold Daily Price(USD)')
         ax_g.set_xlabel('Date')
         ax_g.plot(self.gold_date[g_i_s:g_i_e],np.hstack((self.gold_obs,self.gold_pred)),'tab:red',label = 'Gold Price')
         if self.gold_found:
             ax_g.plot(self.gold_next_date,self.gold_next_price,'tab:red',marker='o')
+        ax_g.plot(self.present_date,self.gold_price,'tab:green',marker='o')
         ax_g.legend()
         ax_b = ax_g.twinx()
         ax_b.set_ylabel('Bitcoin Daily Price(USD)')
         ax_b.plot(self.bitcoin_date[b_i_s:b_i_e],np.hstack((self.bitcoin_obs,self.bitcoin_pred)),'tab:blue',label = 'Bitcoin Price')
         if self.bitcoin_found:
             ax_b.plot(self.bitcoin_next_date,self.bitcoin_next_price,'tab:blue',marker='o')
+        ax_b.plot(self.present_date,self.bitcoin_price,'tab:green',marker='o')
         ax_b.legend()
-        plt.axvline(x=self.present_date)
+        # plt.axvline(x=self.present_date)
         # fig.tight_layout()
         plt.savefig(f"./results/{self.present_date}_Predictions")
         plt.close()
@@ -245,7 +228,7 @@ class Stradegy_Runner():
     def Linear_Programing(self):
         """Finding trade amount by linear programming"""
         ## (x1-gold x2-bitcoin) ++ +- -+ --
-        self.next_max_asset = -10000.0
+        self.next_max_asset = 0.0
         c = -np.array([[self.gold_next_price-self.gold_price*(1+self.gold_commission), self.bitcoin_next_price-self.bitcoin_price*(1+self.bitcoin_commission)],
                        [self.gold_next_price-self.gold_price*(1+self.gold_commission), self.bitcoin_next_price-self.bitcoin_price*(1-self.bitcoin_commission)],
                        [self.gold_next_price-self.gold_price*(1-self.gold_commission), self.bitcoin_next_price-self.bitcoin_price*(1+self.bitcoin_commission)],
@@ -262,7 +245,7 @@ class Stradegy_Runner():
 
         for i in range(0,4):
             res = optimize.linprog(c=c[i], A_ub=A_ub[i], b_ub=b_ub, bounds=(x_b[i],y_b[i]),method='simplex')
-            # print(res.x)
+            print(res)
             # print(res.slack)
             # print(self.cash-res.fun+self.gold_next_price*self.gold+self.bitcoin_next_price*self.bitcoin)
             if self.cash-res.fun+self.gold_next_price*self.gold+self.bitcoin_next_price*self.bitcoin > self.next_max_asset:
@@ -270,7 +253,6 @@ class Stradegy_Runner():
                 self.gold_trade = res.x[0]
                 self.bitcoin_trade = res.x[1]
         self.total_assets(print_info=False)
-        self.trade = True
 
         self.present_date = self.next_trade_date
         return
@@ -301,8 +283,6 @@ class Stradegy_Runner():
         # while False:
             print(f"\n\n{self.present_date}")
             ## Update price
-            self.gold_price = self.gold_df.Value[self.present_date]
-            self.bitcoin_price = self.bitcoin_df.Value[self.present_date]
             train = self.last_train_date + timedelta(days=self.train_interval) <=  self.present_date # whether to update model
             # train = False
             self.update_epochs()
@@ -337,13 +317,13 @@ class Stradegy_Runner():
         self.trade_history = np.array(self.trade_history)
         plt.figure(num="Trade History",figsize=(12,9))
         plt.title('Trade History')
-        plt.plot(self.gold_date,self.gold_prices*0.1,label = 'Gold Price * 0.1')
-        plt.plot(self.bitcoin_date,self.bitcoin_prices*0.1,label = 'Bitcoin Price * 0.1')
-        plt.plot(self.trade_history[:,0],self.trade_history[:,2],label = 'Gold Trade',marker='o')
-        plt.plot(self.trade_history[:,0],self.trade_history[:,4],label = 'Bitcoin Trade',marker='o')
-        plt.plot(self.trade_history[:,0],self.trade_history[:,5],label = 'Cash')
-        plt.plot(self.trade_history[:,0],self.trade_history[:,7],label = 'Gold')
-        plt.plot(self.trade_history[:,0],self.trade_history[:,9],label = 'Bitcoin')
+        # plt.plot(self.gold_date,self.gold_prices*0.1,label = 'Gold Price * 0.1')
+        # plt.plot(self.bitcoin_date,self.bitcoin_prices*0.1,label = 'Bitcoin Price * 0.1')
+        # plt.plot(self.trade_history[:,0],self.trade_history[:,2],label = 'Gold Trade',marker='o')
+        # plt.plot(self.trade_history[:,0],self.trade_history[:,4],label = 'Bitcoin Trade',marker='o')
+        # plt.plot(self.trade_history[:,0],self.trade_history[:,5],label = 'Cash')
+        # plt.plot(self.trade_history[:,0],self.trade_history[:,7],label = 'Gold')
+        # plt.plot(self.trade_history[:,0],self.trade_history[:,9],label = 'Bitcoin')
         plt.plot(self.trade_history[:,0],self.trade_history[:,10],label = 'Total Assets')
         plt.xlabel('Date')
         plt.ylabel('US Dollar')
